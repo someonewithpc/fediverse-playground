@@ -15,17 +15,17 @@ def config_social_v2(id):
 SOFTWARE = {
     'social-v3': {
         'display_name': 'GNU social v3',
-        'services': [
+        'dependencies': [
             { 'type': 'web', 'volumes': { './public': '/var/www/social/public', '{config}': '/var/nginx/{config}' }},
             { 'type': 'db' },
-            { 'type': 'php' },
+            { 'type': 'php', 'container_name': '{id}', 'volumes': { './docker/social/install.sh': '/etc/entrypoint.d/social_install.sh', './software/social-v3': '/var/www/{id}' } },
         ],
         'config': config_social_v3,
         'source': ('git@codeberg.org:GNUsocial/gnu-social.git', 'v3'),
     },
     'social-v2': {
         'display_name': 'GNU social v2',
-        'services': [
+        'dependencies': [
             { 'type': 'web' },
             { 'type': 'db' },
             { 'type': 'php' },
@@ -103,23 +103,24 @@ def write_config(config):
     volumes = {}
     for inst in config:
         software = SOFTWARE[inst['instance_type']]
-        for service in software['services']:
-            if service['type'] not in volumes and 'volumes' in service:
-                volumes[inst['instance_type']] = service['volumes']
+        for dependency in software['dependencies']:
+            if dependency['type'] not in volumes and 'volumes' in dependency:
+                volumes[inst['instance_type']] = dependency['volumes']
 
-            if service['type'] not in services:
-                services.add(service['type'])
+            if dependency['type'] not in services:
+                services.add(dependency['type'])
                 config_file = f"{inst['id']}.conf"
-                output += indent(SERVICES[service['type']](
+                dependency_container_names = list(map(
+                    lambda dep: dep['container_name'].format(id=inst['id']) if 'container_name' in dep else dep['type'],
+                    software['dependencies'],
+                ))
+                output += indent(SERVICES[dependency['type']](
                     inst['id'],
+                    dependency_container_names,
                     list(map(
-                        lambda serv: serv['type'],
-                        software['services'],
-                    )),
-                    list(map(
-                        lambda v: f"{v.format(config='./files/' + config_file)}:{service['volumes'][v].format(config=config_file)}",
-                        service['volumes'],
-                    )) if 'volumes' in service else [],
+                        lambda v: f"{v.format(config='./files/' + config_file, id=inst['id'])}:{dependency['volumes'][v].format(config=config_file, id=inst['id'])}",
+                        dependency['volumes'],
+                    )) if 'volumes' in dependency else [],
                 ).rstrip("\n ") + "\n")
 
     # TODO
