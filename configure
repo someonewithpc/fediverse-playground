@@ -1,0 +1,66 @@
+#!/bin/sh
+
+# ------------ Check whether the system has whiptail or dialog -------------
+if command -v whiptail > /dev/null 2>&1; then
+    WHIPTAIL=whiptail
+elif command -v dialog > /dev/null 2>&1; then
+    WHIPTAIL=dialog
+else
+    echo "whiptail/dialog are not available, can't proceed"
+    exit 1
+fi
+
+# whiptail/dialog exits with 1 when cancelling through the UI, or 255 on ^C
+validate_exit () {
+    case $1 in
+        1|255) printf "Canceling...\n" && exit 2 ;;
+    esac
+}
+# --------------------------------------------------------------------------
+
+INSTANCES=""
+while :; do
+      MENU=$(${WHIPTAIL} \
+          --title 'Fediverse Software Instances:\n\n' --clear --backtitle 'Fediverse Playground' --notags \
+          --menu 'Choose an option' 0 0 0 \
+          'add-instance' 'Add an Instance' \
+          'edit-instance' 'Edit an Instance' \
+          'remove-instance' 'Remove an Instance' \
+          'list-instances' 'List Instances' \
+          'edit-config' 'Edit Configuration' \
+          'save-configuration' 'Save Configuration' \
+          3>&1 1>&2 2>&3)
+      validate_exit $?
+
+      case $MENU in
+          add-instance)
+              TO_ADD=$(${WHIPTAIL} \
+                  --title 'Add an Instance' --clear --backtitle 'Fediverse Playground' --notags \
+                  --radiolist '' 0 0 0 \
+                  social 'GNU social' off \
+                  mastodon 'Mastodon' off \
+                  3>&1 1>&2 2>&3)
+              validate_exit $?
+
+              SUBDOMAIN=$(${WHIPTAIL} \
+                  --title "Add an Instance of ${TO_ADD}" --clear --backtitle 'Fediverse Playground' --notags \
+                  --inputbox 'Subdomain for this instance' 0 0 $TO_ADD \
+                  3>&1 1>&2 2>&3)
+              validate_exit $?
+
+              INSTANCES=$(printf "${INSTANCES}\n\n${TO_ADD} ${SUBDOMAIN}")
+
+              # case $TO_ADD in
+              #     social)
+              #     ;;
+              # esac
+
+              ;;
+          save-configuration)
+              echo 'Saving'
+              echo $INSTANCES
+              break
+              ;;
+      esac
+done
+echo $MENU
