@@ -210,10 +210,25 @@ while run:
 
             instance_type = first_prompt if kind == 'add' else config[first_prompt]['instance_type']
 
+            source, rc = w.inputbox(
+                msg=f"Where would you like to fetch '{SOFTWARE[instance_type]['display_name']}'?",
+                default=SOFTWARE[instance_type]['source'][0] if kind == 'add' else config[first_prompt]['source'][0]
+            )
+            if source == '' or rc != 0:
+                sys.exit('Invalid source')
+
+            reference, rc = w.inputbox(
+                msg=f"What reference would you like to use for '{SOFTWARE[instance_type]['display_name']}'?",
+                default=SOFTWARE[instance_type]['source'][1] if kind == 'add' else config[first_prompt]['source'][1]
+            )
+            if reference == '' or rc != 0:
+                sys.exit('Invalid reference')
+
+
             if kind == 'edit':
                 config.pop(first_prompt)
 
-            config.append({'instance_type': instance_type, 'hostname': hostname, 'name': name, 'id': id})
+            config.append({'instance_type': instance_type, 'hostname': hostname, 'name': name, 'id': id, 'source': (source, reference)})
 
         return inner
 
