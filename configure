@@ -38,11 +38,23 @@ SOFTWARE = {
 def format_array(arr):
     return ("\n        - " if len(arr) > 0 else '') + "\n        - ".join(arr)
 
+def variable_replacements_fn(s, default_image):
+    def inner(id, deps, volumes, image=None):
+        s.format(
+            id=id,
+            deps=format_array(deps),
+            volumes=format_array(volumes),
+            container_name=f"{id}-php" if id else 'php',
+            image=image if image is not None else default_image,
+        )
+
+    return inner
+
 SERVICES = {
-    'web': lambda id, deps, volumes:
-    """
+    'web': variable_replacements_fn(
+        """
 web:
-    image: nginx:alpine
+    {image}
     depends_on: {deps}
     restart: always
     tty: false
@@ -51,24 +63,28 @@ web:
         - "443:443"
     volumes: {volumes}
         - ./docker/web/nginx.conf:/var/nginx/nginx.conf
-    """.format(deps=format_array(deps), volumes=format_array(volumes)),
+        """,
+        'image: nginx:alpine',
+    ),
 
-    'db': lambda id, deps, volumes:
-    """
+    'db': variable_replacements_fn(
+        """
 db:
-    image: postgres:alpine
+    {image}
     restart: always
     tty: false
     environment:
         - PGDATA=/var/lib/postgres/data
     volumes: {volumes}
         - database:/var/lib/postgres/data
-    """.format(deps=format_array(deps), volumes=format_array(volumes)),
+        """,
+        'image: postgres:alpine'
+    ),
 
-    'php': lambda id, deps, volumes:
-    """
+    'php': variable_replacements_fn(
+        """
 {id}:
-    build: docker/php
+    {image}
     restart: always
     tty: true
     container_name: {container_name}
@@ -76,7 +92,9 @@ db:
         - ./docker/php/entrypoint.sh:/bin/entrypoint.sh
         - ./docker/db/wait_for_db.sh:/bin/wait_for_db.sh
     command: /entrypoint.sh
-    """.format(id=id, deps=format_array(deps), volumes=format_array(volumes), container_name=f"{id}-php" if id else 'php'),
+        """,
+        'image: php:cli-alpine',
+    ),
 }
 
 def snake_case(s):
