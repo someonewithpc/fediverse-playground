@@ -40,7 +40,7 @@ def format_array(arr):
 
 def variable_replacements_fn(s, default_image):
     def inner(id, deps, volumes, image=None):
-        s.format(
+        return s.format(
             id=id,
             deps=format_array(deps),
             volumes=format_array(volumes),
@@ -132,13 +132,16 @@ def write_config(config):
                     lambda dep: dep['container_name'].format(id=inst['id']) if 'container_name' in dep else dep['type'],
                     software['dependencies'],
                 ))
+                dependency_volumes = list(map(
+                    lambda v: f"{v.format(config='./files/' + config_file, id=inst['id'])}:{dependency['volumes'][v].format(config=config_file, id=inst['id'])}",
+                    dependency['volumes'],
+                )) if 'volumes' in dependency else []
+
                 output += indent(SERVICES[dependency['type']](
                     inst['id'],
                     dependency_container_names,
-                    list(map(
-                        lambda v: f"{v.format(config='./files/' + config_file, id=inst['id'])}:{dependency['volumes'][v].format(config=config_file, id=inst['id'])}",
-                        dependency['volumes'],
-                    )) if 'volumes' in dependency else [],
+                    dependency_volumes,
+                    software['image'] if 'image' in software else None,
                 ).rstrip("\n ") + "\n")
 
     # TODO
