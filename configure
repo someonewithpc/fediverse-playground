@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+
+from whiptail import Whiptail
+from re import sub
+
+def snake_case(s):
+  return '_'.join(
+    sub('([A-Z][a-z]+)', r' \1',
+    sub('([A-Z]+)', r' \1',
+    s.replace('-', ' '))).split()).lower()
+
+w = Whiptail(title="Fediverse Playground", backtitle="Fediverse Playground", height=0, width=0)
+
+instances = []
+
+run = True
+while run:
+    w.title = "Fediverse Playground"
+
+    msg = f"Added {len(instances)} instances" if len(instances) > 0 else 'No instances'
+    selection, rc = w.menu(msg=msg, items=['Add an Instance', 'Edit Instance', 'Remove an Instance', 'Edit Configuration', 'Save Configuration'])
+
+    if (rc != 0):
+        print('Cancelling')
+        break
+
+    w.title = selection
+
+    match selection:
+        case 'Add an Instance':
+            instance_type, rc = w.radiolist(msg='Which software would you like to add?', items=['GNU social', 'Mastodon'])
+            instance_type = ' '.join(instance_type)
+
+            hostname, rc = w.inputbox(msg='What hostname should this instance be available under?', default='.localhost')
+
+            name, rc = w.inputbox(msg='What should this instance be called?')
+
+            id, rc = w.inputbox(msg='What name should the Docker containers use?', default=snake_case(name))
+
+            instances.append({ 'instance_type': instance_type, 'hostname': hostname, 'name': name, 'id': id })
+        case 'Save Configuration':
+            run = False
+            print('Exiting...')
+
+    print(instances)
