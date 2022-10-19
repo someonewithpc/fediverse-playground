@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from re import sub
+
 def format_array_dc(arr):
     return ("\n        - " if len(arr) > 0 else '') + "\n        - ".join(arr)
 

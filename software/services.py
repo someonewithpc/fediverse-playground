@@ -32,19 +32,4 @@ db:
         """,
         'image: postgres:alpine'
     ),
-
-    'php': variable_replacements_fn(
-        """
-{id}:
-    {image}
-    restart: always
-    tty: true
-    container_name: {container_name}
-    volumes: {volumes}
-        - ./docker/php/entrypoint.sh:/bin/entrypoint.sh
-        - ./docker/db/wait_for_db.sh:/bin/wait_for_db.sh
-    command: /entrypoint.sh
-        """,
-        'image: php:cli-alpine',
-    ),
 }

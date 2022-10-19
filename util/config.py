@@ -5,7 +5,7 @@ import json
 
 from software import SOFTWARE
 from software.services import SERVICES
-from util import format_array_dc, indent
+from util import indent
 
 def load_config():
     if not exists('config.json'):
@@ -38,7 +38,9 @@ def write_config(config):
                     dependency['volumes'],
                 )) if 'volumes' in dependency else []
 
-                output += indent(SERVICES[dependency['type']](
+                service = dependency['definition'] if 'definition' in dependency else SERVICES[dependency['type']]
+
+                output += indent(service(
                     inst['id'],
                     dependency_container_names,
                     dependency_volumes,

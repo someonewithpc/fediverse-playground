@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from whiptail import Whiptail
-from re import sub
 import sys
 
 from software import SOFTWARE
