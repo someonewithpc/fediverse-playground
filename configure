@@ -21,6 +21,7 @@ SOFTWARE = {
             { 'type': 'php', 'container_name': '{id}', 'volumes': { './docker/social/install.sh': '/etc/entrypoint.d/social_install.sh', './software/social-v3': '/var/www/{id}' } },
         ],
         'config': config_social_v3,
+        'docker-image': 'build: docker/php',
         'source': ('git@codeberg.org:GNUsocial/gnu-social.git', 'v3'),
     },
     'social-v2': {
@@ -141,7 +142,7 @@ def write_config(config):
                     inst['id'],
                     dependency_container_names,
                     dependency_volumes,
-                    software['image'] if 'image' in software else None,
+                    software['docker-image'] if 'docker-image' in software else None,
                 ).rstrip("\n ") + "\n")
 
     # TODO
