@@ -88,7 +88,7 @@ while run:
     w.title = "Fediverse Playground"
 
     msg = f"Added {len(config)} config" if len(config) > 0 else 'No config'
-    selection, rc = w.menu(msg=msg, items=['Add an Instance', 'Edit Instance', 'Remove an Instance', 'Edit Configuration', 'Save Configuration'])
+    selection, rc = w.menu(msg=msg, items=['Add an Instance', 'Edit an Instance', 'Remove an Instance', 'Edit Configuration', 'Save Configuration'])
 
     if (rc != 0):
         print('Cancelling')
@@ -96,33 +96,66 @@ while run:
 
     w.title = selection
 
-    match selection:
-        case 'Add an Instance':
-            instance_type, rc = w.radiolist(
-                msg='Which software would you like to add?',
-                items=list(zip(SOFTWARE.keys(), list(map(lambda s: SOFTWARE[s]['display_name'], SOFTWARE)), ['off'] * len(SOFTWARE))),
-            )
-            instance_type = ' '.join(instance_type)
-            if instance_type == '' or rc != 0:
-                sys.exit(f"Invalid instance type {instance_type} {rc}")
+    def add_or_edit(kind):
+        def inner():
+            first_prompt = []
+            rc = 0
+            if kind == 'add':
+                first_prompt, rc = w.menu(
+                    msg='Which software would you like to add?',
+                    items=list(zip(SOFTWARE.keys(), [SOFTWARE[soft]['display_name'] for soft in SOFTWARE])),
+                )
+            else:
+                id, rc = w.menu(
+                    msg='Which instance would you like to edit?',
+                    items=list(zip([inst['id'] for inst in config], [f"{inst['instance_type']} - {inst['name']}" for inst in config]))
+                )
+                first_prompt = [idx for idx, inst in enumerate(config) if inst['id'] == id][0]
 
-            hostname, rc = w.inputbox(msg='What hostname should this instance be available under?', default='.localhost')
+            if first_prompt == '' or rc != 0:
+                sys.exit(f"Invalid instance type")
+
+            hostname, rc = w.inputbox(
+                msg='What hostname should this instance be available under?',
+                default='.localhost' if kind == 'add' else config[first_prompt]['hostname']
+            )
             if hostname == '' or rc != 0:
                 sys.exit('Invalid hostname')
 
-            name, rc = w.inputbox(msg='What should this instance be called?')
+            name, rc = w.inputbox(
+                msg='What should this instance be called?',
+                default='' if kind == 'add' else config[first_prompt]['name'],
+            )
             if name == '' or rc != 0:
                 sys.exit('Invalid name')
 
-            id, rc = w.inputbox(msg='What name should the Docker containers use?', default=snake_case(name))
+            id, rc = w.inputbox(
+                msg='What name should the Docker containers use?',
+                default=snake_case(name) if kind == 'add' else config[first_prompt]['id'],
+            )
             if id == '' or rc != 0:
                 sys.exit('Invalid ID')
 
-            config.append({ 'instance_type': instance_type, 'hostname': hostname, 'name': name, 'id': id })
+            instance_type = first_prompt if kind == 'add' else config[first_prompt]['instance_type']
 
-        case 'Save Configuration':
-            run = False
-            write_config(config)
-            print('Exiting...')
+            if kind == 'edit':
+                print(config, first_prompt, kind)
+                config.pop(first_prompt)
+
+            config.append({'instance_type': instance_type, 'hostname': hostname, 'name': name, 'id': id})
+
+        return inner
+
+    def save():
+        global run
+        run = False
+        write_config(config)
+        print('Exiting...')
+
+    {
+        'Add an Instance': add_or_edit('add'),
+        'Edit an Instance': add_or_edit('edit'),
+        'Save Configuration': save,
+    }[selection]()
 
     print(config)
