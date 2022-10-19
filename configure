@@ -1,61 +1,12 @@
 #!/usr/bin/env python
 
-from os.path import exists
 from whiptail import Whiptail
 from re import sub
-import json
 import sys
 
 from software import SOFTWARE
-from util import format_array_dc, variable_replacements_fn, snake_case, indent
+from util import format_array_dc, variable_replacements_fn, snake_case
 from util.config import load_config, write_config
-
-SERVICES = {
-    'web': variable_replacements_fn(
-        """
-web:
-    {image}
-    depends_on: {deps}
-    restart: always
-    tty: false
-    ports:
-        - "80:80"
-        - "443:443"
-    volumes: {volumes}
-        - ./docker/web/nginx.conf:/var/nginx/nginx.conf
-        """,
-        'image: nginx:alpine',
-    ),
-
-    'db': variable_replacements_fn(
-        """
-db:
-    {image}
-    restart: always
-    tty: false
-    environment:
-        - PGDATA=/var/lib/postgres/data
-    volumes: {volumes}
-        - database:/var/lib/postgres/data
-        """,
-        'image: postgres:alpine'
-    ),
-
-    'php': variable_replacements_fn(
-        """
-{id}:
-    {image}
-    restart: always
-    tty: true
-    container_name: {container_name}
-    volumes: {volumes}
-        - ./docker/php/entrypoint.sh:/bin/entrypoint.sh
-        - ./docker/db/wait_for_db.sh:/bin/wait_for_db.sh
-    command: /entrypoint.sh
-        """,
-        'image: php:cli-alpine',
-    ),
-}
 
 w = Whiptail(title="Fediverse Playground", backtitle="Fediverse Playground", height=0, width=0)
 

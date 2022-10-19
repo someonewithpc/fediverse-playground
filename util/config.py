@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+from os.path import exists
+import json
+
+from software import SOFTWARE
+from software.services import SERVICES
+from util import format_array_dc, indent
+
 def load_config():
     if not exists('config.json'):
         return [];
