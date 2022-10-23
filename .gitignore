@@ -1,5 +1,6 @@
 config.json
 docker-compose.yml
 instances
+files
 
 **/__pycache__
