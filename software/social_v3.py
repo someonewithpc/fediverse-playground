@@ -32,12 +32,21 @@ def config(instance):
         ]) as p:
             p.communicate()
 
+    if not exists(f"instances/{instance['id']}/.env.local"):
+        with open(f"instances/{instance['id']}/.env.local", 'w') as f:
+            f.write("""
+DATABASE_URL=postgresql://postgres:fediverse-playground@db:5432/social
+MAILER_DSN=sendmail://localhost
+MESSENGER_TRANSPORT_DSN=sync://
+""")
+
 social_v3 = {
     'social-v3': {
         'display_name': 'GNU social v3',
         'dependencies': [
             { 'type': 'web', 'volumes': { './instances/{id}/public': '/var/www/social/public', '{config}': '/etc/nginx/vhosts/{config}', './files/{hostname}/': '/etc/letsencrypt/live/{hostname}' }},
             { 'type': 'db' },
+            { 'type': 'redis' },
             { 'type': 'social-v3-php', 'container_name': '{id}', 'definition': (variable_replacements_fn("""
 {id}:
     build: instances/{id}/docker/php

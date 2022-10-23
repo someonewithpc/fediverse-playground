@@ -19,7 +19,7 @@ events {
 http {
   include   /etc/nginx/vhosts/*.conf;
 }
- """)
+""")
 
 
     if not exists('files/letsencrypt/'):
@@ -35,6 +35,27 @@ http {
 
 def db_config(instance):
     pass
+
+def redis_config(instance):
+    if not exists('files/'):
+        makedirs('files', exist_ok=True)
+
+    if not exists('files/redis.conf'):
+        with open('files/redis.conf', 'w') as f:
+            f.write("""
+bind redis 127.0.0.1
+protected-mode no
+port 6379
+tcp-backlog 511
+timeout 0
+tcp-keepalive 300
+daemonize no
+supervised no
+pidfile /var/run/redis_6379.pid
+loglevel notice
+logfile ""
+databases 1
+""")
 
 SERVICES = {
     'web': (variable_replacements_fn(
@@ -69,4 +90,17 @@ db:
         """,
         'image: postgres:alpine'
     ), db_config),
+
+    'redis': (variable_replacements_fn(
+        """
+redis:
+    {image}
+    restart: always
+    tty: false
+    volumes:
+        - ./files/redis.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+        """,
+        'image: redis:alpine'
+    ), redis_config)
 }
