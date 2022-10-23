@@ -28,7 +28,7 @@ def write_config(config):
 
             if dependency['type'] not in services:
                 services.add(dependency['type'])
-                config_file = f"{inst['id']}.conf"
+                config_file = f"{inst['id']}.nginx.conf"
                 dependency_container_names = list(map(
                     lambda dep: dep['container_name'].format(id=inst['id']) if 'container_name' in dep else dep['type'],
                     software['dependencies'],

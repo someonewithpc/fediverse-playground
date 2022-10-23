@@ -13,8 +13,8 @@ def config(instance):
     if not exists('files/'):
         makedirs('files', exist_ok=True)
 
-    if not exists(f"files/{instance['id']}.conf"):
-        with open(f"files/{instance['id']}.conf", 'w') as f:
+    if not exists(f"files/{instance['id']}.nginx.conf"):
+        with open(f"files/{instance['id']}.nginx.conf", 'w') as f:
             with open(f"instances/{instance['id']}/docker/nginx/nginx.conf", 'r') as orig:
                 s = orig.read()
                 for reg, repl in [(r'%hostname%', instance['hostname']), (r'php:9000', f"{instance['id']}:9000")]:
