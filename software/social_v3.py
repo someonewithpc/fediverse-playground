@@ -54,18 +54,17 @@ social_v3 = {
     tty: true
     environment:
         - SOCIAL_DBMS=postgres
+        - DBMS=postgres
         - SOCIAL_DB=social
         - SOCIAL_USER=postgres
+        - POSTGRES_PASSWORD=fediverse-playground
         - SOCIAL_PASSWORD=fediverse-playground
         - CONFIG_DOMAIN=social.localhost
         - CONFIG_NODE_NAME={instance_name}
         - SOCIAL_ADMIN_EMAIL=
         - SOCIAL_SITE_PROFILE=public
-        - MAILER_DSN=sendmail://localhost
-        - MESSENGER_TRANSPORT_DSN=sync://
     volumes: {volumes}
         - ./instances/{id}:/var/www/social
-        - ./instances/{id}/docker/social/install.sh:/etc/entrypoint.d/social_install.sh
         - ./instances/{id}/docker/php/entrypoint.sh:/entrypoint.sh
         - ./instances/{id}/docker/db/wait_for_db.sh:/wait_for_db.sh
         - ./instances/{id}/docker/social/install.sh:/var/entrypoint.d/social_install.sh
