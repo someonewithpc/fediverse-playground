@@ -6,13 +6,15 @@ def format_array_dc(arr):
     return ("\n        - " if len(arr) > 0 else '') + "\n        - ".join(arr)
 
 def variable_replacements_fn(s, default_image):
-    def inner(id, deps, volumes, image=None):
+    def inner(id, deps, volumes, instance_name, hostname, image=None):
         return s.format(
             id=id,
             deps=format_array_dc(deps),
             volumes=format_array_dc(volumes),
             container_name=f"{id}-php" if id else 'php',
             image=image if image is not None else default_image,
+            instance_name=instance_name,
+            hostname=hostname,
         )
     return inner
 

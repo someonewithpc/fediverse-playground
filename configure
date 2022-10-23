@@ -78,16 +78,12 @@ def add_or_edit(kind):
     return inner
 
 def clone():
-    global run
     makedirs('instances', exist_ok=True)
     local_clones = [f"instances/{inst['id']}" for inst in config if path.exists(f"instances/{inst['id']}")]
 
     for inst in config:
         p = Popen(['git', 'clone', inst['source'][0], f"instances/{inst['id']}", '--dissociate', *[part for lc in local_clones for part in ['--reference', lc]]])
         out, err = p.communicate()
-        print(out, err)
-
-    run = False
 
 def save():
     global run

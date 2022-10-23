@@ -12,7 +12,6 @@ social_v2 = {
             { 'type': 'db' },
             { 'type': 'php' },
         ],
-        'config': config,
         'source': ('git@codeberg.org:GNUsocial/gnu-social.git', 'nightly'),
     }
 }

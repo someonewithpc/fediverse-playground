@@ -34,16 +34,20 @@ def write_config(config):
                     software['dependencies'],
                 ))
                 dependency_volumes = list(map(
-                    lambda v: f"{v.format(config='./files/' + config_file, id=inst['id'])}:{dependency['volumes'][v].format(config=config_file, id=inst['id'])}",
+                    lambda v: f"{v.format(config='./files/' + config_file, id=inst['id'], hostname=inst['hostname'])}:{dependency['volumes'][v].format(config=config_file, id=inst['id'], hostname=inst['hostname'])}",
                     dependency['volumes'],
                 )) if 'volumes' in dependency else []
 
-                service = dependency['definition'] if 'definition' in dependency else SERVICES[dependency['type']]
+                service, service_config = dependency['definition'] if 'definition' in dependency else SERVICES[dependency['type']]
+
+                service_config(inst)
 
                 output += indent(service(
                     inst['id'],
-                    dependency_container_names,
+                    [],
                     dependency_volumes,
+                    inst['name'],
+                    inst['hostname'],
                     software['docker-image'] if 'docker-image' in software else None,
                 ).rstrip("\n ") + "\n")
 
