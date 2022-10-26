@@ -2,14 +2,23 @@
 
 ## Run multiple Fediverse Software locally, for development
 
-Note that this is not necessarily a production ready system, it's very likely
-some things are unsafely configured
+> Note that this is not necessarily a production ready system, it's very likely
+> some things are unsafely configured
 
+A common problem when developing federated software is the need to test for
+compatibility with other such software. This leads developers to test their
+software against semi-random publicly available instances of their or other
+software. This is not ideal since then developers may not have access to logs,
+or to make changes, which slows down development. This project aims to solve
+that by allowing you to run as many copies of each software locally.
 
 ## Supported software
 
  - GNU social v3
  - GNU social v2 (WIP)
+ 
+Feel free to contribute your software! More will be added, such as GoToSocial,
+Lemmy or Mastodon
  
 ## Setup ('installation')
 
@@ -37,7 +46,15 @@ Then, run
 ./configure
 ```
 
-And follow the prompts. Simply add as many instances of each software as you desire and then run
+And follow the prompts. You can add and edit the instances you selected, which
+get saved such that if you exit, you can rerun `configure` at any point, to
+further modify your configuration, as well as dump the updated
+`docker-compose.yml` file.
+
+After configuring the instances you want, you need to select the `'Clone
+Software'` option.
+
+Simply add as many instances of each software as you desire and then run
 
 ```sh
 docker-compose up -d
