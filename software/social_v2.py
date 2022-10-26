@@ -6,7 +6,7 @@ def config():
 
 social_v2 = {
     'social-v2': {
-        'display_name': 'GNU social v2',
+        'display_name': 'GNU social v2 (WIP)',
         'dependencies': [
             { 'type': 'web' },
             { 'type': 'db' },
