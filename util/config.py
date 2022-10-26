@@ -26,7 +26,7 @@ def write_config(config):
             if dependency['type'] not in volumes and 'volumes' in dependency:
                 volumes[inst['instance_type']] = dependency['volumes']
 
-            if dependency['type'] not in services:
+            if dependency['type'] not in services or 'definition' in dependency:
                 services.add(dependency['type'])
                 config_file = f"{inst['id']}.nginx.conf"
                 dependency_container_names = list(map(
