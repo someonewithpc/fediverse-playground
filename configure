@@ -72,6 +72,9 @@ def add_or_edit(kind):
 
         if kind == 'edit':
             config.pop(first_prompt)
+            print(f"Edited {instance_type} - {id}")
+        else:
+            print(f"Added {instance_type} - {id}")
 
         config.append({'instance_type': instance_type, 'hostname': hostname, 'name': name, 'id': id, 'source': (source, reference)})
 
@@ -82,10 +85,15 @@ def clone():
     local_clones = [f"instances/{inst['id']}" for inst in config if path.exists(f"instances/{inst['id']}")]
 
     for inst in config:
-        p = Popen(['git', 'clone', inst['source'][0], f"instances/{inst['id']}", '--dissociate', *[part for lc in local_clones for part in ['--reference', lc]]])
-        out, err = p.communicate()
+        if not path.exists(f"instances/{inst['id']}"):
+            p = Popen(['git', 'clone', inst['source'][0], f"instances/{inst['id']}", '--dissociate', *[part for lc in local_clones for part in ['--reference', lc]]])
+            out, err = p.communicate()
 
-def save():
+def dump_config():
+    write_config(config)
+    print('Wrote `docker-compose.yaml`')
+
+def do_exit():
     global run
     run = False
     write_config(config)
@@ -96,7 +104,7 @@ while run:
     w.title = "Fediverse Playground"
 
     msg = f"Added {len(config)} config" if len(config) > 0 else 'No config'
-    selection, rc = w.menu(msg=msg, items=['Add an Instance', 'Edit an Instance', 'Clone Software', 'Save Configuration'])
+    selection, rc = w.menu(msg=msg, items=['Add an Instance', 'Edit an Instance', 'Clone Software', 'Dump `docker-compose.yaml`', 'Exit'])
 
     if (rc != 0):
         print('Cancelling')
@@ -108,5 +116,6 @@ while run:
         'Add an Instance': add_or_edit('add'),
         'Edit an Instance': add_or_edit('edit'),
         'Clone Software': clone,
-        'Save Configuration': save,
+        'Dump `docker-compose.yaml`': dump_config,
+        'Exit': do_exit,
     }[selection]()
