@@ -17,7 +17,7 @@ def config(instance):
         with open(f"files/{instance['id']}.nginx.conf", 'w') as f:
             with open(f"instances/{instance['id']}/docker/nginx/nginx.conf", 'r') as orig:
                 s = orig.read()
-                for reg, repl in [(r'%hostname%', instance['hostname']), (r'php:9000', f"{instance['id']}:9000")]:
+                for reg, repl in [(r'%hostname%', instance['hostname']), (r'php:9000', f"{instance['id']}:9000"), (r'root /var/www/social', f"root /var/www/{instance['id']}")]:
                     s = re.sub(reg, repl, s)
                 f.write(s)
 
@@ -35,7 +35,7 @@ def config(instance):
     if not exists(f"instances/{instance['id']}/.env.local"):
         with open(f"instances/{instance['id']}/.env.local", 'w') as f:
             f.write("""
-DATABASE_URL=postgresql://postgres:fediverse-playground@db:5432/social
+DATABASE_URL=postgresql://postgres:fediverse-playground@db:5432/{instance['id']}
 MAILER_DSN=sendmail://localhost
 MESSENGER_TRANSPORT_DSN=sync://
 """)

@@ -68,10 +68,10 @@ web:
         - "80:80"
         - "443:443"
     volumes: {volumes}
-        - /etc/nginx/conf.d/default.conf # remove this file
         - ./files/nginx.conf:/etc/nginx/nginx.conf
         - ./files/letsencrypt/options-ssl-nginx.conf:/etc/letsencrypt/options-ssl-nginx.conf
         - ./files/letsencrypt/ssl-dhparams.pem:/etc/letsencrypt/ssl-dhparams.pem
+    command: /bin/sh -c 'rm /etc/nginx/conf.d/default.conf; nginx -g "daemon off;"'
         """,
         'image: nginx:alpine',
     ), web_config),
