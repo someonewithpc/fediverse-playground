@@ -9,10 +9,29 @@ some things are unsafely configured
 ## Supported software
 
  - GNU social v3
+ - GNU social v2 (WIP)
  
 ## Setup ('installation')
 
-Run
+This project uses Python for the configuration, and `docker` and/or `docker-compose` to run the containers. 
+
+There's a virtual environment available, so you can run
+
+```sh
+./venv/bin/activate
+```
+
+Or install the following dependencies:
+    
+    - whiptail
+
+with
+
+```sh
+pip install whiptail
+```
+
+Then, run
 
 ```sh
 ./configure
@@ -32,7 +51,9 @@ docker compose up -d
 
 in newer versions of `docker`
 
-The instances you configured should all be accessible in your browser
+The instances you configured should all be accessible in your browser under the
+domains you specified (you may need to edit your `/etc/hosts` if you didn't use
+`.localhost` domains)
 
 ## Contributing
 
