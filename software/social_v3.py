@@ -44,7 +44,7 @@ social_v3 = {
     'social-v3': {
         'display_name': 'GNU social v3',
         'dependencies': [
-            { 'type': 'web', 'volumes': { './instances/{id}/public': '/var/www/social/public', '{config}': '/etc/nginx/vhosts/{config}', './files/{hostname}/': '/etc/letsencrypt/live/{hostname}' }},
+            { 'type': 'web', 'volumes': { './instances/{id}/public': '/var/www/{id}/public', '{config}': '/etc/nginx/conf.d/{config}', './files/{hostname}/': '/etc/letsencrypt/live/{hostname}' }},
             { 'type': 'db' },
             { 'type': 'redis' },
             { 'type': 'social-v3-php', 'container_name': '{id}', 'definition': (variable_replacements_fn("""
@@ -55,11 +55,11 @@ social_v3 = {
     environment:
         - SOCIAL_DBMS=postgres
         - DBMS=postgres
-        - SOCIAL_DB=social
+        - SOCIAL_DB={id}
         - SOCIAL_USER=postgres
         - POSTGRES_PASSWORD=fediverse-playground
         - SOCIAL_PASSWORD=fediverse-playground
-        - CONFIG_DOMAIN=social.localhost
+        - CONFIG_DOMAIN={hostname}
         - CONFIG_NODE_NAME={instance_name}
         - SOCIAL_ADMIN_EMAIL=
         - SOCIAL_SITE_PROFILE=public

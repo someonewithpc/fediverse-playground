@@ -17,7 +17,7 @@ events {
 }
 
 http {
-  include   /etc/nginx/vhosts/*.conf;
+  include   /etc/nginx/conf.d/*.conf;
 }
 """)
 
@@ -68,6 +68,7 @@ web:
         - "80:80"
         - "443:443"
     volumes: {volumes}
+        - /etc/nginx/conf.d/default.conf # remove this file
         - ./files/nginx.conf:/etc/nginx/nginx.conf
         - ./files/letsencrypt/options-ssl-nginx.conf:/etc/letsencrypt/options-ssl-nginx.conf
         - ./files/letsencrypt/ssl-dhparams.pem:/etc/letsencrypt/ssl-dhparams.pem
