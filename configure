@@ -14,6 +14,7 @@ w = Whiptail(title="Fediverse Playground", backtitle="Fediverse Playground", hei
 config = load_config()
 
 def add_or_edit(kind):
+    """Add or Edit an entry"""
     def inner():
         first_prompt = []
         rc = 0
@@ -23,14 +24,14 @@ def add_or_edit(kind):
                 items=list(zip(SOFTWARE.keys(), [SOFTWARE[soft]['display_name'] for soft in SOFTWARE])),
             )
         else:
-            id, rc = w.menu(
+            instance_id, rc = w.menu(
                 msg='Which instance would you like to edit?',
-                items=list(zip([inst['id'] for inst in config], [f"{inst['instance_type']} - {inst['name']}" for inst in config]))
+                items=list(zip([inst['instance_id'] for inst in config], [f"{inst['instance_type']} - {inst['name']}" for inst in config]))
             )
-            first_prompt = [idx for idx, inst in enumerate(config) if inst['id'] == id][0]
+            first_prompt = [idx for idx, inst in enumerate(config) if inst['instance_id'] == instance_id][0]
 
         if first_prompt == '' or rc != 0:
-            sys.exit(f"Invalid instance type")
+            sys.exit('Invalid instance type')
 
         hostname, rc = w.inputbox(
             msg='What hostname should this instance be available under?',
@@ -46,11 +47,11 @@ def add_or_edit(kind):
         if name == '' or rc != 0:
             sys.exit('Invalid name')
 
-        id, rc = w.inputbox(
+        instance_id, rc = w.inputbox(
             msg='What name should the Docker containers use?',
-            default=snake_case(name) if kind == 'add' else config[first_prompt]['id'],
+            default=snake_case(name) if kind == 'add' else config[first_prompt]['instance_id'],
         )
-        if id == '' or rc != 0:
+        if instance_id == '' or rc != 0:
             sys.exit('Invalid ID')
 
         instance_type = first_prompt if kind == 'add' else config[first_prompt]['instance_type']
@@ -72,21 +73,21 @@ def add_or_edit(kind):
 
         if kind == 'edit':
             config.pop(first_prompt)
-            print(f"Edited {instance_type} - {id}")
+            print(f"Edited {instance_type} - {instance_id}")
         else:
-            print(f"Added {instance_type} - {id}")
+            print(f"Added {instance_type} - {instance_id}")
 
-        config.append({'instance_type': instance_type, 'hostname': hostname, 'name': name, 'id': id, 'source': (source, reference)})
+        config.append({'instance_type': instance_type, 'hostname': hostname, 'name': name, 'instance_id': instance_id, 'source': (source, reference)})
 
     return inner
 
 def clone():
     makedirs('instances', exist_ok=True)
-    local_clones = [f"instances/{inst['id']}" for inst in config if path.exists(f"instances/{inst['id']}")]
+    local_clones = [f"instances/{inst['instance_id']}" for inst in config if path.exists(f"instances/{inst['instance_id']}")]
 
     for inst in config:
-        if not path.exists(f"instances/{inst['id']}"):
-            p = Popen(['git', 'clone', inst['source'][0], f"instances/{inst['id']}", '--dissociate', *[part for lc in local_clones for part in ['--reference', lc]]])
+        if not path.exists(f"instances/{inst['instance_id']}"):
+            p = Popen(['git', 'clone', inst['source'][0], f"instances/{inst['instance_id']}", '--dissociate', *[part for lc in local_clones for part in ['--reference', lc]]])
             out, err = p.communicate()
 
 def dump_config():
@@ -106,7 +107,7 @@ while run:
     msg = f"Added {len(config)} config" if len(config) > 0 else 'No config'
     selection, rc = w.menu(msg=msg, items=['Add an Instance', 'Edit an Instance', 'Clone Software', 'Dump `docker-compose.yaml`', 'Exit'])
 
-    if (rc != 0):
+    if rc != 0:
         print('Cancelling')
         break
 
