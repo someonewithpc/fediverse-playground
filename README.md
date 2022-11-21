@@ -24,20 +24,26 @@ Lemmy or Mastodon
 
 This project uses Python for the configuration, and `docker` and/or `docker-compose` to run the containers. 
 
-There's a virtual environment available, so you can run
+It's recommended you create a [Virtual Environment](https://docs.python.org/3/library/venv.html) with:
 
-```sh
-./venv/bin/activate
+``` sh
+python -m venv venv
 ```
 
-Or install the following dependencies:
+and then you can run
+
+```sh
+source venv/bin/activate
+```
+
+If you prefer to use another method, the following dependencies are required:
     
     - whiptail
 
-with
+which can be installed with
 
 ```sh
-pip install whiptail
+pip install whiptail-dialog
 ```
 
 Then, run
