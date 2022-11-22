@@ -24,6 +24,18 @@ Lemmy or Mastodon
 
 This project uses Python for the configuration, and `docker` and/or `docker-compose` to run the containers. 
 
+This project can set up it's own dependencies in a Python Virtual Environment. To do this, run
+
+``` sh
+./configure
+```
+
+Which will afterwards launch the configuration menu. You can safely use this everytime
+
+Alternatively, if you want to set it up on your own, follow the next section
+
+### Manual setup
+
 It's recommended you create a [Virtual Environment](https://docs.python.org/3/library/venv.html) with:
 
 ``` sh
@@ -49,7 +61,7 @@ pip install whiptail-dialog
 Then, run
 
 ```sh
-./configure
+python menu.py
 ```
 
 And follow the prompts. You can add and edit the instances you selected, which
