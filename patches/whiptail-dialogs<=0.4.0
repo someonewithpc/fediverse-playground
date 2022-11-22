@@ -1,0 +1,11 @@
+--- orig.py	2022-11-21 23:09:16.860203057 +0000
++++ venv/lib/python3.10/site-packages/whiptail/__init__.py	2022-11-21 23:09:37.000278832 +0000
+@@ -306,7 +306,7 @@
+ 		else:
+ 			height = self.height
+ 
+-		return [str(height - height_offset)]
++		return [str(max(0, height - height_offset))]
+ 
+ 	def menu(
+ 			self,
